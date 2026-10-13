@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - MayeeFitness Hub{% endblock %}
+
+{% block header_title %}
+  <h1>Search Results</h1>
+  <p>Showing gym records matching "{{ query }}"</p>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 24px;">
+  <form method="GET" action="{{ url_for('search') }}" style="display: flex; gap: 12px;">
+    <input type="text" name="q" class="form-input" value="{{ query }}" placeholder="Search members, classes, trainers, equipment..." style="max-width: 400px;">
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+</div>
+
+<!-- Results Sections -->
+{% if members %}
+  <div class="card" style="margin-bottom: 24px;">
+    <div class="card-header">
+      <div class="card-title">Members ({{ members|length }})</div>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Email</th>
+            <th>Plan</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in members %}
+            <tr>
+              <td>
+                <div class="member-cell">
+                  <div class="avatar-circle">{{ m.avatar }}</div>
+                  <div>
+                    <div class="member-info-name">{{ m.name }}</div>
+                    <div class="member-info-code">{{ m.member_code }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ m.email }}</td>
+              <td>{{ m.plan }}</td>
+              <td><span class="badge {{ m.get_badge_class() }}">{{ m.status }}</span></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endif %}
+
+{% if classes %}
+  <div class="card" style="margin-bottom: 24px;">
+    <div class="card-header">
+      <div class="card-title">Classes & Schedule ({{ classes|length }})</div>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>Instructor</th>
+            <th>Day & Time</th>
+            <th>Enrolled</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in classes %}
+            <tr>
+              <td><strong>{{ c.title }}</strong></td>
+              <td>{{ c.trainer }}</td>
+              <td>{{ c.day }} · {{ c.time_slot }} ({{ c.studio }})</td>
+              <td>{{ c.enrolled_count }}/{{ c.capacity }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endif %}
+
+{% if equipment %}
+  <div class="card" style="margin-bottom: 24px;">
+    <div class="card-header">
+      <div class="card-title">Equipment ({{ equipment|length }})</div>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Units</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for eq in equipment %}
+            <tr>
+              <td><strong>{{ eq.name }}</strong></td>
+              <td>{{ eq.category }}</td>
+              <td>{{ eq.units }}</td>
+              <td><span class="badge {{ eq.badge_class }}">{{ eq.status }}</span></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endif %}
+
+{% if not members and not classes and not equipment and not trainers %}
+  <div class="card" style="text-align: center; padding: 48px 24px;">
+    <div style="font-size: 40px; margin-bottom: 12px;">🔍</div>
+    <h3 style="font-size: 18px; font-weight: 700;">No matching records found</h3>
+    <p style="color: var(--text-muted); font-size: 13px; margin-top: 6px;">
+      Try searching for a different name, keyword, or class title.
+    </p>
+    <div style="margin-top: 20px;">
+      <a href="/" class="btn btn-outline">Back to Dashboard</a>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

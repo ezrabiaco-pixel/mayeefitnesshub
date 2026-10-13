@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Account Settings - MayeeFitness Hub{% endblock %}
+
+{% block header_title %}
+  <h1>Account Settings</h1>
+  <p>Manage your account credentials and personal preferences</p>
+{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+  <!-- Profile Information Form -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Personal Information</div>
+      <span class="badge {{ user.get_badge_class() }}">{{ user.get_role_display() }}</span>
+    </div>
+
+    <form method="POST" action="{{ url_for('profile') }}">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" name="name" class="form-input" value="{{ user.name }}" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address (Read-only)</label>
+        <input type="email" class="form-input" value="{{ user.email }}" disabled style="opacity: 0.6; cursor: not-allowed;">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="text" name="phone" class="form-input" value="{{ user.phone }}" placeholder="+63 9XX XXX XXXX">
+      </div>
+
+      <div style="margin-top: 24px;">
+        <button type="submit" class="btn btn-primary">Save Profile Changes</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Security & Password Form -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Change Password</div>
+    </div>
+
+    <form method="POST" action="{{ url_for('profile') }}">
+      <div class="form-group">
+        <label class="form-label">Current Password</label>
+        <input type="password" name="old_password" class="form-input" placeholder="••••••••" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">New Password</label>
+        <input type="password" name="new_password" class="form-input" placeholder="Min. 4 characters" required>
+      </div>
+
+      <div style="margin-top: 24px;">
+        <button type="submit" class="btn btn-outline">Update Password</button>
+      </div>
+    </form>
+
+    <div style="margin-top: 30px; padding: 14px; background: var(--bg-card-subtle); border-radius: 8px;">
+      <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 4px;">OOP Encapsulation Note</h4>
+      <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+        Passwords and email addresses are encapsulated within the <code>User</code> class and protected with property validation routines and private attributes.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

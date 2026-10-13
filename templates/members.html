@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Members Directory - MayeeFitness Hub{% endblock %}
+
+{% block header_title %}
+  <h1>Members Directory</h1>
+  <p>Manage, register, and update gym membership accounts</p>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <!-- Controls Bar: Filter pills + Search + Add Button -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+    <!-- Status Filter Pills -->
+    <div style="display: flex; gap: 8px;">
+      <a href="{{ url_for('members_list', status='All') }}" class="btn btn-sm {% if current_filter == 'All' %}btn-primary{% else %}btn-outline{% endif %}">
+        All ({{ members|length }})
+      </a>
+      <a href="{{ url_for('members_list', status='Active') }}" class="btn btn-sm {% if current_filter == 'Active' %}btn-primary{% else %}btn-outline{% endif %}">
+        Active
+      </a>
+      <a href="{{ url_for('members_list', status='Expiring') }}" class="btn btn-sm {% if current_filter == 'Expiring' %}btn-primary{% else %}btn-outline{% endif %}">
+        Expiring
+      </a>
+      <a href="{{ url_for('members_list', status='Expired') }}" class="btn btn-sm {% if current_filter == 'Expired' %}btn-primary{% else %}btn-outline{% endif %}">
+        Expired
+      </a>
+    </div>
+
+    <!-- Right Actions -->
+    <div style="display: flex; gap: 12px; align-items: center;">
+      {% if current_user.role == 'admin' %}
+        <button class="btn btn-primary" onclick="openModal('addMemberModal')">
+          + Add New Member
+        </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Members Data Table -->
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th>Contact & Email</th>
+          <th>Plan</th>
+          <th>Trainer</th>
+          <th>Expiry Date</th>
+          <th>Status</th>
+          {% if current_user.role == 'admin' %}
+            <th style="text-align: right;">Actions</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% if members %}
+          {% for m in members %}
+            <tr class="filterable-row">
+              <td>
+                <div class="member-cell">
+                  <div class="avatar-circle">
+                    {{ m.avatar }}
+                  </div>
+                  <div>
+                    <div class="member-info-name">{{ m.name }}</div>
+                    <div class="member-info-code">{{ m.member_code }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div>{{ m.email }}</div>
+                <div style="font-size: 11.5px; color: var(--text-dim);">{{ m.phone if m.phone else '—' }}</div>
+              </td>
+              <td><strong>{{ m.plan }}</strong></td>
+              <td>{{ m.trainer_name }}</td>
+              <td>{{ m.expires }}</td>
+              <td>
+                <span class="badge {{ m.get_badge_class() }}">{{ m.status }}</span>
+              </td>
+              {% if current_user.role == 'admin' %}
+                <td style="text-align: right;">
+                  <button class="btn btn-sm btn-outline" 
+                          onclick="openEditMemberModal('{{ m.id }}', '{{ m.name }}', '{{ m.email }}', '{{ m.phone }}', '{{ m.plan }}', '{{ m.trainer_name }}', '{{ m.expires }}', '{{ m.status }}')">
+                    Edit
+                  </button>
+                  <form method="POST" action="{{ url_for('delete_member', user_id=m.id) }}" style="display: inline-block;" onsubmit="return confirm('Are you sure you want to delete member {{ m.name }}?');">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                  </form>
+                </td>
+              {% endif %}
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              No members found matching your search criteria.
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: ADD NEW MEMBER -->
+<!-- ========================================== -->
+<div id="addMemberModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>+ Add New Member</h3>
+      <button class="modal-close" onclick="closeModal('addMemberModal')">✕</button>
+    </div>
+    <form method="POST" action="{{ url_for('add_member') }}">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="name" class="form-input" placeholder="e.g. Jerome Reyes" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" name="email" class="form-input" placeholder="e.g. jerome@example.com" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="text" name="phone" class="form-input" placeholder="+63 9XX XXX XXXX">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Membership Plan</label>
+            <select name="plan" class="form-select">
+              <option value="Annual">Annual</option>
+              <option value="Monthly" selected>Monthly</option>
+              <option value="Quarterly">Quarterly</option>
+              <option value="Walk-in">Walk-in</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Assigned Trainer</label>
+            <select name="trainer_name" class="form-select">
+              {% for t in trainers %}
+                <option value="{{ t.name }}">{{ t.name }} ({{ t.specialty }})</option>
+              {% endfor %}
+              <option value="—">Unassigned</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Expiry Date</label>
+            <input type="text" name="expires" class="form-input" value="Oct 2027">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Membership Status</label>
+          <select name="status" class="form-select">
+            <option value="Active" selected>Active</option>
+            <option value="Expiring">Expiring</option>
+            <option value="Expired">Expired</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('addMemberModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Member</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: EDIT MEMBER -->
+<!-- ========================================== -->
+<div id="editMemberModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Edit Member Account</h3>
+      <button class="modal-close" onclick="closeModal('editMemberModal')">✕</button>
+    </div>
+    <form id="editMemberForm" method="POST" action="">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="editMemberName" name="name" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="editMemberEmail" name="email" class="form-input" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="text" id="editMemberPhone" name="phone" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Plan</label>
+            <select id="editMemberPlan" name="plan" class="form-select">
+              <option value="Annual">Annual</option>
+              <option value="Monthly">Monthly</option>
+              <option value="Quarterly">Quarterly</option>
+              <option value="Walk-in">Walk-in</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Assigned Trainer</label>
+            <select id="editMemberTrainer" name="trainer_name" class="form-select">
+              {% for t in trainers %}
+                <option value="{{ t.name }}">{{ t.name }}</option>
+              {% endfor %}
+              <option value="—">Unassigned</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Expiry Date</label>
+            <input type="text" id="editMemberExpires" name="expires" class="form-input">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Membership Status</label>
+          <select id="editMemberStatus" name="status" class="form-select">
+            <option value="Active">Active</option>
+            <option value="Expiring">Expiring</option>
+            <option value="Expired">Expired</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('editMemberModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Update Member</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

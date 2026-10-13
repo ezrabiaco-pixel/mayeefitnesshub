@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Workout Plans - MayeeFitness Hub{% endblock %}
+
+{% block header_title %}
+  <h1>Workout Plans & Routines</h1>
+  <p>Track your prescribed exercises, sets, reps, and completion progress</p>
+{% endblock %}
+
+{% block content %}
+<div class="grid-3-col">
+  <!-- Active Workout Card -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Assigned Routine: {{ workout.title if workout else 'Upper Body Power' }}</div>
+        <div class="card-subtitle">{{ workout.duration_min if workout else 45 }} Minutes · Assigned by {{ workout.assigned_by if workout else 'Coach Dan' }}</div>
+      </div>
+      <span class="badge badge-primary">{{ workout.completion_percentage if workout else 67 }}% Complete</span>
+    </div>
+
+    <!-- Progress Bar -->
+    <div style="margin-bottom: 24px;">
+      <div class="progress-bar-bg" style="height: 8px;">
+        <div class="progress-bar-fill" style="width: {{ workout.completion_percentage if workout else 67 }}%;"></div>
+      </div>
+      <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
+        {{ workout.completed_exercises if workout else 4 }} of {{ workout.total_exercises if workout else 6 }} exercises finished
+      </div>
+    </div>
+
+    <!-- Exercise Items -->
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      {% if workout %}
+        {% for ex in workout.exercises %}
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--bg-card-subtle); border-radius: 12px; border: 1px solid var(--border-color);">
+            <div>
+              <div style="font-weight: 700; font-size: 14px; color: {% if ex.done %}var(--text-muted){% else %}#fff{% endif %}; {% if ex.done %}text-decoration: line-through;{% endif %}">
+                {{ ex.name }}
+              </div>
+              <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">
+                {{ ex.sets }} · Rest 60s
+              </div>
+            </div>
+            <form method="POST" action="{{ url_for('toggle_exercise', plan_id=workout.id, ex_idx=loop.index0) }}">
+              <button type="submit" class="btn btn-sm {% if ex.done %}btn-primary{% else %}btn-outline{% endif %}">
+                {% if ex.done %}✓ Completed{% else %}Mark Done{% endif %}
+              </button>
+            </form>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Routine Coaching Notes & Guidance -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Coach Notes</div>
+    </div>
+
+    <div style="padding: 14px; background: rgba(255,107,0,0.08); border: 1px solid rgba(255,107,0,0.25); border-radius: 10px; margin-bottom: 18px;">
+      <div style="font-weight: 700; color: var(--primary-orange); font-size: 13px; margin-bottom: 4px;">
+        Focus Points for Today
+      </div>
+      <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5;">
+        {{ workout.notes if workout else "Warm up shoulders with 5 mins of dynamic bands. Keep elbows tucked 45 degrees on barbell presses." }}
+      </p>
+    </div>
+
+    {% if user.role in ['trainer', 'admin'] %}
+      <div style="margin-top: 20px;">
+        <button class="btn btn-primary" style="width: 100%;" onclick="openModal('assignWorkoutModal')">
+          + Assign New Plan to Trainee
+        </button>
+      </div>
+    {% else %}
+      <div style="margin-top: 20px;">
+        <a href="{{ url_for('chat') }}" class="btn btn-outline" style="width: 100%;">
+          💬 Ask Coach a Form Question
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- MODAL: ASSIGN WORKOUT ROUTINE -->
+<div id="assignWorkoutModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Assign Workout Plan</h3>
+      <button class="modal-close" onclick="closeModal('assignWorkoutModal')">✕</button>
+    </div>
+    <form method="POST" action="{{ url_for('assign_workout') }}">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Select Member</label>
+          <select name="member_id" class="form-select">
+            {% for m in members %}
+              <option value="{{ m.id }}">{{ m.name }} ({{ m.member_code }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Routine Title</label>
+          <input type="text" name="title" class="form-input" placeholder="e.g. Lower Body Hypertrophy" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duration (Minutes)</label>
+          <input type="number" name="duration_min" class="form-input" value="45" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Coach Instructions</label>
+          <textarea name="notes" class="form-textarea" rows="3" placeholder="Focus on depth and glute engagement..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('assignWorkoutModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Assign Plan</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

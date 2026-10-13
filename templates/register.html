@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join MayeeFitness Hub - Member Registration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-hero-pane">
+      <div class="auth-grid-pattern"></div>
+      <div class="brand-logo" style="margin-bottom: 0; z-index: 2;">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title" style="font-size: 20px;">Mayee<span>Fitness</span></div>
+          <div class="brand-subtitle">HUB</div>
+        </div>
+      </div>
+
+      <div class="auth-hero-content">
+        <h1 class="auth-hero-headline">Start your fitness<br><span>journey today.</span></h1>
+        <p class="auth-hero-desc">
+          Sign up to access tailored workout plans, book studio classes, and track your transformation.
+        </p>
+
+        <div class="auth-hero-stats-grid">
+          <div class="auth-stat-box">
+            <div class="auth-stat-val">Free</div>
+            <div class="auth-stat-label">Fitness Assessment</div>
+          </div>
+          <div class="auth-stat-box">
+            <div class="auth-stat-val">Unlimited</div>
+            <div class="auth-stat-label">Group classes</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-hero-footer">
+        © 2026 MayeeFitness Hub. All rights reserved.
+      </div>
+    </div>
+
+    <div class="auth-form-pane">
+      <div class="auth-card-inner">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-container">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  <span>{{ message }}</span>
+                  <button class="alert-close" onclick="this.parentElement.remove()">✕</button>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <h2 class="auth-title">Create an Account</h2>
+        <p class="auth-subtitle">Join the MayeeFitness Hub community as a new member.</p>
+
+        <form method="POST" action="{{ url_for('register') }}">
+          <div class="form-group">
+            <label class="form-label" for="regName">Full Name</label>
+            <input type="text" id="regName" name="name" class="form-input" placeholder="e.g. Maria Clara" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regEmail">Email Address</label>
+            <input type="email" id="regEmail" name="email" class="form-input" placeholder="maria@example.com" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="regPassword">Password</label>
+              <input type="password" id="regPassword" name="password" class="form-input" placeholder="Min. 4 characters" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regPhone">Phone Number</label>
+              <input type="text" id="regPhone" name="phone" class="form-input" placeholder="+63 9XX XXX XXXX">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regPlan">Membership Plan</label>
+            <select id="regPlan" name="plan" class="form-select">
+              <option value="Monthly">Monthly Membership (₱2,500/mo)</option>
+              <option value="Quarterly">Quarterly Membership (₱6,800/3mo)</option>
+              <option value="Annual" selected>Annual Premium (₱24,000/yr)</option>
+              <option value="Walk-in">Walk-in Daily Pass</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">Complete Registration</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted);">
+          Already have an account? <a href="{{ url_for('login') }}" style="color: var(--primary-orange); font-weight: 600;">Sign in here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

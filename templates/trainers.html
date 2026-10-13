@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Trainers Directory - MayeeFitness Hub{% endblock %}
+
+{% block header_title %}
+  <h1>Trainers & Coaching Staff</h1>
+  <p>Manage certified personal trainers and class instructors</p>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 24px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <div>
+      <h3 style="font-size: 16px; font-weight: 700;">Fitness Coaching Team</h3>
+      <p style="font-size: 12.5px; color: var(--text-muted);">{{ trainers|length }} Elite Instructors</p>
+    </div>
+
+    {% if current_user.role == 'admin' %}
+      <button class="btn btn-primary" onclick="openModal('addTrainerModal')">
+        + Add New Trainer
+      </button>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid-2">
+  {% for t in trainers %}
+    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div class="avatar-circle" style="width: 48px; height: 48px; font-size: 18px;">
+              {{ t.avatar }}
+            </div>
+            <div>
+              <h3 style="font-size: 16px; font-weight: 800; color: #fff;">{{ t.name }}</h3>
+              <div style="color: var(--primary-orange); font-size: 12.5px; font-weight: 600;">{{ t.specialty }}</div>
+            </div>
+          </div>
+          <span class="badge badge-primary">⭐ {{ t.rating }}</span>
+        </div>
+
+        <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
+          {{ t.bio }}
+        </p>
+
+        <div style="font-size: 12px; color: var(--text-dim); display: flex; flex-direction: column; gap: 4px;">
+          <div>📧 {{ t.email }}</div>
+          <div>📞 {{ t.phone if t.phone else 'Direct Extension #204' }}</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 12px; color: var(--text-muted);">Active Staff</span>
+        {% if current_user.role == 'member' %}
+          <a href="{{ url_for('chat', recipient_id=t.id) }}" class="btn btn-sm btn-primary">
+            💬 Message
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- MODAL: ADD TRAINER -->
+<div id="addTrainerModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>+ Add Certified Trainer</h3>
+      <button class="modal-close" onclick="closeModal('addTrainerModal')">✕</button>
+    </div>
+    <form method="POST" action="{{ url_for('add_trainer') }}">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="name" class="form-input" placeholder="e.g. Coach Miguel" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" name="email" class="form-input" placeholder="e.g. miguel@mayeefitness.com" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Specialty</label>
+            <input type="text" name="specialty" class="form-input" placeholder="e.g. Crossfit & Mobility" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="text" name="phone" class="form-input" placeholder="+63 9XX XXX XXXX">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bio & Certifications</label>
+          <textarea name="bio" class="form-textarea" rows="3" placeholder="Certified personal trainer with..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('addTrainerModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Trainer</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

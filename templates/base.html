@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MayeeFitness Hub{% endblock %}</title>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <!-- Brand Logo -->
+      <a href="/" class="brand-logo">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6.5 6.5 11 11"/>
+            <path d="m21 21-1-1"/>
+            <path d="m3 3 1 1"/>
+            <path d="m18 22 4-4"/>
+            <path d="m2 6 4-4"/>
+            <path d="m3 10 7-7"/>
+            <path d="m14 21 7-7"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">Mayee<span>Fitness</span></div>
+          <div class="brand-subtitle">HUB</div>
+        </div>
+      </a>
+
+      <!-- Navigation Links based on Role -->
+      {% if current_user %}
+        {% if current_user.role == 'admin' %}
+          <div class="nav-section-title">Main</div>
+          <ul class="nav-menu">
+            <li class="nav-item {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+              <a href="{{ url_for('admin_dashboard') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                Dashboard
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'members_list' %}active{% endif %}">
+              <a href="{{ url_for('members_list') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Members
+                <span class="badge-count">12</span>
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'trainers' %}active{% endif %}">
+              <a href="{{ url_for('trainers') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/></svg>
+                Trainers
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'classes_list' %}active{% endif %}">
+              <a href="{{ url_for('classes_list') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                Classes & Schedule
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'payments_list' %}active{% endif %}">
+              <a href="{{ url_for('payments_list') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                Payments
+              </a>
+            </li>
+          </ul>
+
+          <div class="nav-section-title">Manage</div>
+          <ul class="nav-menu">
+            <li class="nav-item {% if request.endpoint == 'equipment_list' %}active{% endif %}">
+              <a href="{{ url_for('equipment_list') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Equipment
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'reports' %}active{% endif %}">
+              <a href="{{ url_for('reports') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
+                Reports
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+              <a href="{{ url_for('profile') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Settings
+              </a>
+            </li>
+          </ul>
+
+          <div class="sidebar-bottom">
+            <div class="sidebar-banner">
+              <h4>Pro Analytics</h4>
+              <p>Unlock retention insights & auto reminders.</p>
+              <button type="button" class="btn-banner" onclick="openModal('proAnalyticsModal')">Upgrade</button>
+            </div>
+          </div>
+
+        {% elif current_user.role == 'trainer' %}
+          <div class="nav-section-title">Coach Menu</div>
+          <ul class="nav-menu">
+            <li class="nav-item {% if request.endpoint == 'trainer_dashboard' %}active{% endif %}">
+              <a href="{{ url_for('trainer_dashboard') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                Coach Dashboard
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'members_list' %}active{% endif %}">
+              <a href="{{ url_for('members_list') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Assigned Trainees
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'classes_list' %}active{% endif %}">
+              <a href="{{ url_for('classes_list') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                Class Schedule
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'workouts' %}active{% endif %}">
+              <a href="{{ url_for('workouts') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/></svg>
+                Workout Plans
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'chat' %}active{% endif %}">
+              <a href="{{ url_for('chat') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Chat with Trainees
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+              <a href="{{ url_for('profile') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Coach Profile
+              </a>
+            </li>
+          </ul>
+
+        {% else %}
+          <!-- Member Navigation (Image 2) -->
+          <div class="nav-section-title">Menu</div>
+          <ul class="nav-menu">
+            <li class="nav-item {% if request.endpoint == 'member_dashboard' %}active{% endif %}">
+              <a href="{{ url_for('member_dashboard') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                My Dashboard
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'workouts' %}active{% endif %}">
+              <a href="{{ url_for('workouts') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/></svg>
+                Workout Plans
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'classes_list' %}active{% endif %}">
+              <a href="{{ url_for('classes_list') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                Book a Class
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'progress' %}active{% endif %}">
+              <a href="{{ url_for('progress') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Progress
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'billing' %}active{% endif %}">
+              <a href="{{ url_for('billing') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                Membership & Billing
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'chat' %}active{% endif %}">
+              <a href="{{ url_for('chat') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Chat with Coach
+                <span class="badge-count">2</span>
+              </a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+              <a href="{{ url_for('profile') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Settings
+              </a>
+            </li>
+          </ul>
+
+          <div class="sidebar-bottom">
+            <div class="sidebar-banner">
+              <h4>🔥 {{ current_user.streak_days }}-day streak</h4>
+              <p>Keep going — 3 more days to unlock the iron badge.</p>
+              <button type="button" class="btn-banner" onclick="openModal('streakRewardsModal')">View rewards</button>
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+      <!-- Top Navigation Header -->
+      <header class="top-header">
+        <div class="header-left">
+          {% block header_title %}
+            <h1>Admin Dashboard</h1>
+            <p>{{ today_str }} · Overview of your gym</p>
+          {% endblock %}
+        </div>
+
+        <div class="header-right">
+          <!-- Global Search Form -->
+          <form method="GET" action="{{ url_for('search') }}" style="display: flex;">
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" name="q" id="clientTableSearch" placeholder="Search members, classes..." autocomplete="off">
+            </div>
+          </form>
+
+          <!-- Notification Bell -->
+          <div class="header-btn-icon" title="Notifications" onclick="openModal('notificationsModal')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            {% if unread_notifications_count > 0 %}
+              <span class="dot-badge"></span>
+            {% endif %}
+          </div>
+
+          <!-- Current User Profile Pill -->
+          {% if current_user %}
+            <div class="user-profile-pill" onclick="window.location.href='{{ url_for('profile') }}'">
+              <div class="avatar-circle">{{ current_user.avatar }}</div>
+              <div class="user-profile-info">
+                <span class="user-profile-name">{{ current_user.name }}</span>
+                <span class="user-profile-role">{{ current_user.get_role_display() }}</span>
+              </div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="header-btn-icon" title="Sign Out">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+            </a>
+          {% endif %}
+        </div>
+      </header>
+
+      <!-- Main Body Container -->
+      <main class="page-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-container">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  <span>{{ message }}</span>
+                  <button class="alert-close" onclick="this.parentElement.remove()">✕</button>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: NOTIFICATIONS CENTER -->
+  <!-- ========================================== -->
+  <div id="notificationsModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h3>Notifications</h3>
+          {% if unread_notifications_count > 0 %}
+            <span class="badge badge-primary">{{ unread_notifications_count }} new</span>
+          {% endif %}
+        </div>
+        <button class="modal-close" onclick="closeModal('notificationsModal')">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 16px 24px;">
+        {% if global_notifications %}
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            {% for n in global_notifications %}
+              <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: {% if n.unread %}rgba(255, 107, 0, 0.08){% else %}var(--bg-card-subtle){% endif %}; border: 1px solid {% if n.unread %}rgba(255, 107, 0, 0.25){% else %}var(--border-color){% endif %}; border-radius: 10px;">
+                <div style="font-size: 20px; line-height: 1;">{{ n.icon }}</div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 700; font-size: 13.5px; color: #fff;">{{ n.title }}</div>
+                  <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">{{ n.desc }}</div>
+                  <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">{{ n.time }}</div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">No active notifications.</p>
+        {% endif %}
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <form method="POST" action="{{ url_for('clear_notifications') }}">
+          <button type="submit" class="btn btn-sm btn-outline">Clear All</button>
+        </form>
+        <button type="button" class="btn btn-sm btn-primary" onclick="closeModal('notificationsModal')">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: PRO ANALYTICS -->
+  <!-- ========================================== -->
+  <div id="proAnalyticsModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🚀 Pro Gym Analytics</h3>
+        <button class="modal-close" onclick="closeModal('proAnalyticsModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
+          Unlock predictive retention insights, automated member renewal SMS workflows, and revenue projections.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 18px;">
+          <div style="background: var(--bg-card-subtle); padding: 14px; border-radius: 10px; border: 1px solid var(--border-color);">
+            <div style="font-size: 20px; font-weight: 800; color: var(--success-green);">94.2%</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Member Retention</div>
+          </div>
+          <div style="background: var(--bg-card-subtle); padding: 14px; border-radius: 10px; border: 1px solid var(--border-color);">
+            <div style="font-size: 20px; font-weight: 800; color: var(--primary-orange);">+18.4%</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Q4 Revenue Forecast</div>
+          </div>
+        </div>
+
+        <div style="padding: 12px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; margin-bottom: 16px;">
+          <div style="font-weight: 700; color: #34d399; font-size: 12.5px;">✓ AI Churn Risk Detection Active</div>
+          <p style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
+            Identified 3 members needing follow-up before membership expiration.
+          </p>
+        </div>
+
+        <form method="POST" action="{{ url_for('pro_analytics') }}">
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
+            Activate Pro Insights
+          </button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('proAnalyticsModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: STREAK REWARDS -->
+  <!-- ========================================== -->
+  <div id="streakRewardsModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🔥 Workout Streak Rewards</h3>
+        <button class="modal-close" onclick="closeModal('streakRewardsModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div style="font-size: 40px; font-weight: 900; color: var(--primary-orange);">
+            {{ current_user.streak_days if current_user.role == 'member' else 12 }} Days
+          </div>
+          <div style="font-size: 13px; color: var(--text-muted);">Consecutive Gym Check-ins</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(16,185,129,0.12); border-radius: 8px;">
+            <div>
+              <div style="font-weight: 700; color: #34d399; font-size: 13px;">✓ 5-Day Bronze Habit</div>
+              <div style="font-size: 11.5px; color: var(--text-muted);">Unlocked Free Protein Shake</div>
+            </div>
+            <span class="badge badge-active">Claimed</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,107,0,0.12); border: 1px solid rgba(255,107,0,0.3); border-radius: 8px;">
+            <div>
+              <div style="font-weight: 700; color: var(--primary-orange); font-size: 13px;">★ 10-Day Iron Badge</div>
+              <div style="font-size: 11.5px; color: var(--text-muted);">10% Discount on Gym Apparel</div>
+            </div>
+            <form method="POST" action="{{ url_for('claim_reward') }}">
+              <button type="submit" class="btn btn-sm btn-primary">Claim</button>
+            </form>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--bg-card-subtle); border-radius: 8px; opacity: 0.6;">
+            <div>
+              <div style="font-weight: 700; font-size: 13px;">🔒 20-Day Titan Status</div>
+              <div style="font-size: 11.5px; color: var(--text-muted);">Free 1-on-1 PT Consultation</div>
+            </div>
+            <span class="badge" style="background: var(--bg-card); color: var(--text-dim);">8 Days to go</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="closeModal('streakRewardsModal')">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared JavaScript -->
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

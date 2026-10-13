@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Coach Portal - MayeeFitness Hub{% endblock %}
+
+{% block header_title %}
+  <h1>Coach Dashboard</h1>
+  <p>{{ today_str }} · Trainer & Member Performance</p>
+{% endblock %}
+
+{% block content %}
+<!-- Coach Profile Highlight Card -->
+<div class="card" style="margin-bottom: 24px; background: linear-gradient(90deg, #1b202d 0%, #151921 100%);">
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+    <div style="display: flex; align-items: center; gap: 18px;">
+      <div class="avatar-circle" style="width: 58px; height: 58px; font-size: 20px;">
+        {{ trainer.avatar if trainer else 'CD' }}
+      </div>
+      <div>
+        <h2 style="font-size: 22px; font-weight: 800;">{{ trainer.name if trainer else 'Coach Dan' }}</h2>
+        <p style="color: var(--primary-orange); font-weight: 600; font-size: 13px;">
+          {{ trainer.get_role_display() if trainer else 'Fitness Coach' }} · ⭐ 4.9 Rating
+        </p>
+        <p style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">
+          {{ trainer.bio if trainer else 'CSCS certified trainer specializing in hypertrophy and metabolic conditioning.' }}
+        </p>
+      </div>
+    </div>
+    <div>
+      <button class="btn btn-primary" onclick="openModal('assignWorkoutModal')">
+        + Assign New Routine
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Grid: Assigned Trainees & Coach Classes -->
+<div class="grid-3-col">
+  <!-- Assigned Trainees -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">My Trainees & Athletes</div>
+      <span class="card-action-link">{{ members|length }} Active</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Plan</th>
+            <th>Workouts</th>
+            <th>Streak</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in members %}
+            <tr class="filterable-row">
+              <td>
+                <div class="member-cell">
+                  <div class="avatar-circle" style="width: 30px; height: 30px; font-size: 11px;">
+                    {{ m.avatar }}
+                  </div>
+                  <div>
+                    <div class="member-info-name">{{ m.name }}</div>
+                    <div class="member-info-code">{{ m.member_code }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ m.plan }}</td>
+              <td>{{ m.workouts_done }}/{{ m.workouts_goal }} done</td>
+              <td>🔥 {{ m.streak_days }} days</td>
+              <td>
+                <span class="badge {{ m.get_badge_class() }}">{{ m.status }}</span>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline" onclick="openAssignForMember('{{ m.id }}', '{{ m.name }}')">
+                  Assign
+                </button>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Coach Class Schedule -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">My Classes Today</div>
+      <span class="card-action-link">{{ trainer_classes|length }} sessions</span>
+    </div>
+
+    <div>
+      {% for c in trainer_classes %}
+        <div class="class-item-row">
+          <div class="class-time-tag">{{ c.time_slot }}</div>
+          <div class="class-details">
+            <div class="class-name">{{ c.title }}</div>
+            <div class="class-instructor">{{ c.studio }} · {{ c.day }}</div>
+          </div>
+          <div class="class-capacity-box">
+            <div class="class-capacity-text">{{ c.enrolled_count }}/{{ c.capacity }}</div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: {{ c.fill_percentage }}%;"></div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div style="margin-top: 20px; padding: 14px; background: var(--bg-card-subtle); border-radius: 8px;">
+      <h4 style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 6px;">💡 Coaching Tip</h4>
+      <p style="font-size: 12px; color: var(--text-dim); line-height: 1.4;">
+        Keep hydration and rest intervals prioritized during high-intensity HIIT sets. Check in with newly enrolled members before start.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: ASSIGN WORKOUT ROUTINE -->
+<!-- ========================================== -->
+<div id="assignWorkoutModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Assign Workout Plan</h3>
+      <button class="modal-close" onclick="closeModal('assignWorkoutModal')">✕</button>
+    </div>
+    <form method="POST" action="{{ url_for('assign_workout') }}">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Select Trainee / Member</label>
+          <select id="assignMemberSelect" name="member_id" class="form-select">
+            {% for m in members %}
+              <option value="{{ m.id }}">{{ m.name }} ({{ m.member_code }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Workout Routine Title</label>
+          <input type="text" name="title" class="form-input" placeholder="e.g. Upper Body Hypertrophy" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estimated Duration (Minutes)</label>
+          <input type="number" name="duration_min" class="form-input" value="45" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Coach Notes / Instructions</label>
+          <textarea name="notes" class="form-textarea" rows="3" placeholder="Focus on controlled eccentric descent..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('assignWorkoutModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Assign Routine</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openAssignForMember(id, name) {
+  const sel = document.getElementById('assignMemberSelect');
+  if (sel) {
+    sel.value = id;
+  }
+  openModal('assignWorkoutModal');
+}
+</script>
+{% endblock %}

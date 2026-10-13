@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In - MayeeFitness Hub</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="auth-page">
+    <!-- Left Hero Pane (Faithful to Image 3) -->
+    <div class="auth-hero-pane">
+      <div class="auth-grid-pattern"></div>
+      
+      <!-- Brand Logo -->
+      <div class="brand-logo" style="margin-bottom: 0; z-index: 2;">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6.5 6.5 11 11"/>
+            <path d="m21 21-1-1"/>
+            <path d="m3 3 1 1"/>
+            <path d="m18 22 4-4"/>
+            <path d="m2 6 4-4"/>
+            <path d="m3 10 7-7"/>
+            <path d="m14 21 7-7"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title" style="font-size: 20px;">Mayee<span>Fitness</span></div>
+          <div class="brand-subtitle">HUB</div>
+        </div>
+      </div>
+
+      <!-- Hero Statement & Value Proposition -->
+      <div class="auth-hero-content">
+        <h1 class="auth-hero-headline">Train smarter.<br><span>Manage stronger.</span></h1>
+        <p class="auth-hero-desc">
+          One platform for gym owners, trainers and members — memberships, classes, payments and progress in one clean workspace.
+        </p>
+
+        <!-- 4 Metric Tiles -->
+        <div class="auth-hero-stats-grid">
+          <div class="auth-stat-box">
+            <div class="auth-stat-val">1,284</div>
+            <div class="auth-stat-label">Active members</div>
+          </div>
+          <div class="auth-stat-box">
+            <div class="auth-stat-val">48</div>
+            <div class="auth-stat-label">Weekly classes</div>
+          </div>
+          <div class="auth-stat-box">
+            <div class="auth-stat-val">QR</div>
+            <div class="auth-stat-label">Contactless check-in</div>
+          </div>
+          <div class="auth-stat-box">
+            <div class="auth-stat-val">24/7</div>
+            <div class="auth-stat-label">Progress tracking</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Copyright Footer -->
+      <div class="auth-hero-footer">
+        © 2026 MayeeFitness Hub. All rights reserved.
+      </div>
+    </div>
+
+    <!-- Right Sign-In Form Pane -->
+    <div class="auth-form-pane">
+      <div class="auth-card-inner">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-container">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  <span>{{ message }}</span>
+                  <button class="alert-close" onclick="this.parentElement.remove()">✕</button>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <h2 class="auth-title">Welcome back 👋</h2>
+        <p class="auth-subtitle">Sign in to continue to your MayeeFitness Hub account.</p>
+
+        <!-- Role Selector Switcher -->
+        <div class="role-pills-switcher">
+          <button type="button" class="role-pill-btn {% if active_tab == 'member' %}active{% endif %}" data-role="member">Member</button>
+          <button type="button" class="role-pill-btn {% if active_tab == 'trainer' %}active{% endif %}" data-role="trainer">Trainer</button>
+          <button type="button" class="role-pill-btn {% if active_tab == 'admin' %}active{% endif %}" data-role="admin">Admin / Staff</button>
+        </div>
+
+        <!-- Authentication Form -->
+        <form method="POST" action="{{ url_for('login') }}">
+          <input type="hidden" name="role_tab" id="selectedRoleTab" value="{{ active_tab|default('member') }}">
+
+          <!-- Email Field -->
+          <div class="form-group">
+            <label class="form-label" for="loginEmail">Email address</label>
+            <div class="auth-input-wrapper">
+              <i>✉️</i>
+              <input type="email" id="loginEmail" name="email" class="form-input" 
+                     placeholder="maya@mayeefitness.com" 
+                     value="{% if active_tab == 'admin' %}admin@mayeefitness.com{% elif active_tab == 'trainer' %}dan@mayeefitness.com{% else %}maya@mayeefitness.com{% endif %}" required>
+            </div>
+          </div>
+
+          <!-- Password Field -->
+          <div class="form-group">
+            <label class="form-label" for="loginPassword">Password</label>
+            <div class="auth-input-wrapper">
+              <i>🔒</i>
+              <input type="password" id="loginPassword" name="password" class="form-input" 
+                     placeholder="••••••••••••" 
+                     value="{% if active_tab == 'admin' %}admin{% elif active_tab == 'trainer' %}coach{% else %}member{% endif %}" required>
+              <button type="button" class="auth-input-toggle-pw" title="Show password">👁️</button>
+            </div>
+          </div>
+
+          <!-- Remember Me & Forgot Password -->
+          <div class="auth-remember-row">
+            <label>
+              <input type="checkbox" name="remember" checked>
+              <span>Remember me</span>
+            </label>
+            <a href="javascript:void(0)" onclick="openModal('forgotPasswordModal')" style="color: var(--primary-orange); font-size: 12.5px;">Forgot password?</a>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 15px;">Sign In</button>
+        </form>
+
+        <div class="auth-divider">
+          <span>or continue with</span>
+        </div>
+
+        <!-- Social Buttons Functional 1-Click -->
+        <div class="social-btns-grid">
+          <a href="{{ url_for('social_login', provider='google') }}" class="btn-social">
+            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 14.5s.7 4.8 1.9 7.2l3.7-2.9z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 17C3.7 20.7 7.5 24 12 24z"/></svg>
+            Google
+          </a>
+          <a href="{{ url_for('social_login', provider='facebook') }}" class="btn-social">
+            <svg width="16" height="16" fill="#1877F2" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Facebook
+          </a>
+        </div>
+
+        <div style="text-align: center; margin-top: 14px; font-size: 13px; color: var(--text-muted);">
+          New to MayeeFitness? <a href="{{ url_for('register') }}" style="color: var(--primary-orange); font-weight: 600;">Create account</a>
+        </div>
+
+        <!-- Convenient 1-Click Demo Accounts for Grading / Testing -->
+        <div class="quick-demo-accounts">
+          <div class="quick-demo-title">⚡ 1-Click Demo Logins:</div>
+          <div class="demo-account-chips">
+            <div class="demo-chip" data-role="member" data-email="maya@mayeefitness.com" data-pass="member" title="Click to fill Member login">
+              👤 Member (Maya)
+            </div>
+            <div class="demo-chip" data-role="trainer" data-email="dan@mayeefitness.com" data-pass="coach" title="Click to fill Coach Dan login">
+              🏋️ Trainer (Coach Dan)
+            </div>
+            <div class="demo-chip" data-role="admin" data-email="admin@mayeefitness.com" data-pass="admin" title="Click to fill Gym Owner login">
+              👑 Admin (Mayee Santos)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: FORGOT PASSWORD RECOVERY -->
+  <div id="forgotPasswordModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Reset Your Password</h3>
+        <button class="modal-close" onclick="closeModal('forgotPasswordModal')">✕</button>
+      </div>
+      <form method="POST" action="{{ url_for('forgot_password') }}">
+        <div class="modal-body">
+          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
+            Enter the email address registered with your MayeeFitness Hub account to recover your access.
+          </p>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" name="email" class="form-input" placeholder="maya@mayeefitness.com" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('forgotPasswordModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Find My Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

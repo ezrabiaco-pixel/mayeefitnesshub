@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Classes & Schedule - MayeeFitness Hub{% endblock %}
+
+{% block header_title %}
+  <h1>Classes & Schedule</h1>
+  <p>Browse, manage, and book group workout sessions</p>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+    <div>
+      <h3 style="font-size: 16px; font-weight: 700;">Scheduled Group Workouts</h3>
+      <p style="font-size: 12.5px; color: var(--text-muted);">Real-time roster capacity and enrollment status</p>
+    </div>
+
+    {% if current_user.role in ['admin', 'trainer'] %}
+      <button class="btn btn-primary" onclick="openModal('addClassModal')">
+        + Add New Class
+      </button>
+    {% endif %}
+  </div>
+
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Class Title</th>
+          <th>Instructor</th>
+          <th>Day & Time</th>
+          <th>Studio</th>
+          <th>Capacity & Enrolled</th>
+          <th style="text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in classes %}
+          <tr class="filterable-row">
+            <td>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="avatar-circle" style="width: 32px; height: 32px; background: #231b17; color: var(--primary-orange);">
+                  {{ c.title[0] }}
+                </div>
+                <div>
+                  <strong style="color: #fff;">{{ c.title }}</strong>
+                </div>
+              </div>
+            </td>
+            <td>{{ c.trainer }}</td>
+            <td>
+              <span class="badge badge-primary" style="font-size: 11px;">{{ c.day }}</span>
+              <span style="margin-left: 6px; font-weight: 600;">{{ c.time_slot }}</span>
+            </td>
+            <td style="color: var(--text-muted);">{{ c.studio }}</td>
+            <td>
+              <div style="width: 140px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px;">
+                  <span>{{ c.enrolled_count }} enrolled</span>
+                  <span>{{ c.capacity }} max</span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: {{ c.fill_percentage }}%;"></div>
+                </div>
+              </div>
+            </td>
+            <td style="text-align: right;">
+              {% if current_user.role == 'member' %}
+                <form method="POST" action="{{ url_for('book_class', class_id=c.id) }}" style="display: inline-block;">
+                  {% if c.id in current_user.booked_class_ids %}
+                    <button type="submit" class="btn btn-sm btn-booked">Booked (Cancel)</button>
+                  {% else %}
+                    <button type="submit" class="btn btn-sm btn-outline" {% if c.is_full %}disabled style="opacity: 0.5;"{% endif %}>
+                      {% if c.is_full %}Full{% else %}Book Spot{% endif %}
+                    </button>
+                  {% endif %}
+                </form>
+              {% elif current_user.role in ['admin', 'trainer'] %}
+                <button class="btn btn-sm btn-outline" 
+                        onclick="openEditClassModal('{{ c.id }}', '{{ c.title }}', '{{ c.trainer }}', '{{ c.time_slot }}', '{{ c.day }}', '{{ c.studio }}', '{{ c.capacity }}')">
+                  Edit
+                </button>
+                <form method="POST" action="{{ url_for('delete_class', class_id=c.id) }}" style="display: inline-block;" onsubmit="return confirm('Delete class {{ c.title }}?');">
+                  <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: ADD CLASS -->
+<!-- ========================================== -->
+<div id="addClassModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Schedule New Class</h3>
+      <button class="modal-close" onclick="closeModal('addClassModal')">✕</button>
+    </div>
+    <form method="POST" action="{{ url_for('add_class') }}">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Class Title</label>
+          <input type="text" name="title" class="form-input" placeholder="e.g. HIIT Burn" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Instructor / Trainer</label>
+            <select name="trainer" class="form-select">
+              {% for t in trainers %}
+                <option value="{{ t.name }}">{{ t.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Day of Week</label>
+            <select name="day" class="form-select">
+              <option value="Monday">Monday</option>
+              <option value="Tuesday">Tuesday</option>
+              <option value="Wednesday" selected>Wednesday</option>
+              <option value="Thursday">Thursday</option>
+              <option value="Friday">Friday</option>
+              <option value="Saturday">Saturday</option>
+              <option value="Sunday">Sunday</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Time Slot</label>
+            <input type="text" name="time_slot" class="form-input" placeholder="e.g. 6:00 AM" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Studio Location</label>
+            <input type="text" name="studio" class="form-input" value="Studio A" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Max Capacity</label>
+          <input type="number" name="capacity" class="form-input" value="20" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('addClassModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Class</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: EDIT CLASS -->
+<!-- ========================================== -->
+<div id="editClassModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Edit Class Session</h3>
+      <button class="modal-close" onclick="closeModal('editClassModal')">✕</button>
+    </div>
+    <form id="editClassForm" method="POST" action="">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Class Title</label>
+          <input type="text" id="editClassTitle" name="title" class="form-input" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Instructor</label>
+            <select id="editClassTrainer" name="trainer" class="form-select">
+              {% for t in trainers %}
+                <option value="{{ t.name }}">{{ t.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Day</label>
+            <select id="editClassDay" name="day" class="form-select">
+              <option value="Monday">Monday</option>
+              <option value="Tuesday">Tuesday</option>
+              <option value="Wednesday">Wednesday</option>
+              <option value="Thursday">Thursday</option>
+              <option value="Friday">Friday</option>
+              <option value="Saturday">Saturday</option>
+              <option value="Sunday">Sunday</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Time Slot</label>
+            <input type="text" id="editClassTime" name="time_slot" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Studio</label>
+            <input type="text" id="editClassStudio" name="studio" class="form-input" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Capacity</label>
+          <input type="number" id="editClassCapacity" name="capacity" class="form-input" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('editClassModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Update Class</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

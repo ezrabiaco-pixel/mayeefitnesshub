@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Membership & Billing - MayeeFitness Hub{% endblock %}
+
+{% block header_title %}
+  <h1>Membership & Billing</h1>
+  <p>Manage subscription plans, contactless pass, and invoices</p>
+{% endblock %}
+
+{% block content %}
+<div class="grid-3-col" style="margin-bottom: 24px;">
+  <!-- Digital Membership Card Preview -->
+  <div class="membership-card-badge" style="min-height: 200px;">
+    <div>
+      <div class="membership-card-header">MEMBERSHIP CARD</div>
+      <div class="membership-card-tier">Premium · {{ member.plan }}</div>
+    </div>
+
+    <div class="membership-card-bottom">
+      <div class="membership-card-holder">
+        <span class="membership-card-label">MEMBER</span>
+        <span class="membership-card-name">{{ member.name }}</span>
+        <span class="membership-card-valid">VALID UNTIL {{ member.expires }}</span>
+      </div>
+      <form method="POST" action="{{ url_for('log_visit') }}" style="display: flex; align-items: center; gap: 8px;">
+        <button type="submit" class="btn btn-sm btn-outline" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.4); color: #fff;">
+          📱 Check In (QR)
+        </button>
+        <div class="membership-qr-mock">
+          <div class="qr-box"></div><div class="qr-box"></div>
+          <div class="qr-box"></div><div class="qr-box"></div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Subscription Status & Renewal Action -->
+  <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+    <div>
+      <div class="card-header">
+        <div class="card-title">Plan Status</div>
+        <span class="badge {{ member.get_badge_class() }}">{{ member.status }}</span>
+      </div>
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+        Your {{ member.plan }} plan grants you unlimited gym floor access, studio classes, sauna, and dedicated locker.
+      </p>
+      <div style="margin-top: 12px; font-size: 12.5px;">
+        <div>Assigned Coach: <strong>{{ member.trainer_name }}</strong></div>
+        <div>Member ID Code: <strong>{{ member.member_code }}</strong></div>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button class="btn btn-primary" style="width: 100%;" onclick="openModal('renewModal')">
+        💳 Renew / Upgrade Plan
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment History Table -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Billing & Payment History</div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Transaction</th>
+          <th>Plan Type</th>
+          <th>Date</th>
+          <th>Method</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Receipt</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if payments %}
+          {% for p in payments %}
+            <tr>
+              <td><strong>#TX-{{ 1000 + p.id }}</strong></td>
+              <td>{{ p.plan }}</td>
+              <td style="color: var(--text-muted);">{{ p.date }}</td>
+              <td><span class="badge badge-primary">{{ p.method }}</span></td>
+              <td><strong style="color: #fff;">{{ p.formatted_amount }}</strong></td>
+              <td><span class="badge badge-active">{{ p.status }}</span></td>
+              <td>
+                <button class="btn btn-sm btn-outline" onclick="alert('Receipt #TX-{{ 1000 + p.id }} ready for download. Amount: {{ p.formatted_amount }}')">
+                  📄 Print
+                </button>
+              </td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 24px; color: var(--text-muted);">
+              No past payment receipts on file for this account.
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL: RENEW MEMBERSHIP -->
+<div id="renewModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Renew Gym Membership</h3>
+      <button class="modal-close" onclick="closeModal('renewModal')">✕</button>
+    </div>
+    <form method="POST" action="{{ url_for('renew_membership') }}">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Select Plan</label>
+          <select name="plan" class="form-select">
+            <option value="Annual" {% if member.plan == 'Annual' %}selected{% endif %}>Annual Premium (₱24,000/yr)</option>
+            <option value="Quarterly" {% if member.plan == 'Quarterly' %}selected{% endif %}>Quarterly Pass (₱6,800/3mo)</option>
+            <option value="Monthly" {% if member.plan == 'Monthly' %}selected{% endif %}>Monthly Flex (₱2,500/mo)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Method</label>
+          <select name="method" class="form-select">
+            <option value="GCash">GCash</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Cash at Desk">Cash at Front Desk</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('renewModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Confirm Renewal</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Equipment Inventory - MayeeFitness Hub{% endblock %}
+
+{% block header_title %}
+  <h1>Equipment Inventory</h1>
+  <p>Track machines, stations, and maintenance schedules</p>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+    <div>
+      <h3 style="font-size: 16px; font-weight: 700;">Equipment & Facility Status</h3>
+      <p style="font-size: 12.5px; color: var(--text-muted);">Ensure zero downtime for peak workout hours</p>
+    </div>
+
+    {% if current_user.role == 'admin' %}
+      <button class="btn btn-primary" onclick="openModal('addEquipmentModal')">
+        + Add Equipment
+      </button>
+    {% endif %}
+  </div>
+
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Equipment Name</th>
+          <th>Category</th>
+          <th>Units</th>
+          <th>Last Inspected</th>
+          <th>Status</th>
+          {% if current_user.role == 'admin' %}
+            <th style="text-align: right;">Action</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for eq in equipment %}
+          <tr class="filterable-row">
+            <td>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="avatar-circle" style="width: 32px; height: 32px; background: #1c222e; color: var(--primary-orange);">
+                  ⚙️
+                </div>
+                <strong>{{ eq.name }}</strong>
+              </div>
+            </td>
+            <td style="color: var(--text-muted);">{{ eq.category }}</td>
+            <td><strong>{{ eq.units }}</strong></td>
+            <td style="color: var(--text-dim); font-size: 12.5px;">{{ eq.last_checked }}</td>
+            <td>
+              <span class="badge {{ eq.badge_class }}">{{ eq.status }}</span>
+            </td>
+            {% if current_user.role == 'admin' %}
+              <td style="text-align: right;">
+                <button class="btn btn-sm btn-outline" 
+                        onclick="openEditEquipmentModal('{{ eq.id }}', '{{ eq.name }}', '{{ eq.units }}', '{{ eq.status }}', '{{ eq.category }}')">
+                  Edit
+                </button>
+                <form method="POST" action="{{ url_for('delete_equipment', eq_id=eq.id) }}" style="display: inline-block;" onsubmit="return confirm('Remove {{ eq.name }} from inventory?');">
+                  <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+              </td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: ADD EQUIPMENT -->
+<!-- ========================================== -->
+<div id="addEquipmentModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Add Equipment Item</h3>
+      <button class="modal-close" onclick="closeModal('addEquipmentModal')">✕</button>
+    </div>
+    <form method="POST" action="{{ url_for('add_equipment') }}">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Equipment Name</label>
+          <input type="text" name="name" class="form-input" placeholder="e.g. Treadmills" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Quantity / Units</label>
+            <input type="number" name="units" class="form-input" value="1" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select name="category" class="form-select">
+              <option value="Cardio">Cardio</option>
+              <option value="Free Weights">Free Weights</option>
+              <option value="Machines">Machines & Cables</option>
+              <option value="Accessories">Accessories</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Operating Status</label>
+          <select name="status" class="form-select">
+            <option value="All OK" selected>All OK</option>
+            <option value="1 service">1 service</option>
+            <option value="2 service">2 service</option>
+            <option value="Under Repair">Under Repair</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('addEquipmentModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Item</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: EDIT EQUIPMENT -->
+<!-- ========================================== -->
+<div id="editEquipmentModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Edit Equipment Details</h3>
+      <button class="modal-close" onclick="closeModal('editEquipmentModal')">✕</button>
+    </div>
+    <form id="editEquipmentForm" method="POST" action="">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Equipment Name</label>
+          <input type="text" id="editEqName" name="name" class="form-input" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Units</label>
+            <input type="number" id="editEqUnits" name="units" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="editEqCategory" name="category" class="form-select">
+              <option value="Cardio">Cardio</option>
+              <option value="Free Weights">Free Weights</option>
+              <option value="Machines">Machines</option>
+              <option value="Accessories">Accessories</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select id="editEqStatus" name="status" class="form-select">
+            <option value="All OK">All OK</option>
+            <option value="1 service">1 service</option>
+            <option value="2 service">2 service</option>
+            <option value="Under Repair">Under Repair</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('editEquipmentModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Update Item</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
